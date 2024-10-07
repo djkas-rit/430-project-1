@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Project 1</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   <script src="src/client.js"></script>
 </head>
+
 <body>
-  
+  <h1>Project 1</h1>
+  <div id="content">
+    <p>The following API endpoints are available:</p>
+    <ul>
+      <li><a href="/pokemon">/pokemon</a> - Get a list of all Pokemon</li>
+      <li><a href="/pokemon?limit=5">/pokemon?limit=5</a> - Get a list of the first 5 Pokemon</li>
+      <li><a href="/pokemon/bulbasaur">/pokemon/bulbasaur</a> - Get information about a specific Pokemon by name</li>
+      <li><a href="/pokemon/1">/pokemon/1</a> - Get information about a specific Pokemon by ID</li>
+      <li><a href="/pokemon/1/encounters">/pokemon/Grass</a> - Get a list of all Pokemon by type</li>
+    </ul>
+  </div>
 </body>
+
 </html>

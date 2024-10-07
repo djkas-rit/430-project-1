@@ -1,49 +1,88 @@
 const http = require('http');
 const query = require('querystring');
 const jsonHandler = require('./jsonResponses.js');
+const htmlHandler = require('./htmlResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
+// dictionary of endpoints and their handlers
+const urlStruct = {
+  '/': htmlHandler.getIndex,
+  '/pokemon': jsonHandler.getPokemon,
+  '/pokemon/{id}': jsonHandler.getPokemonById,
+  '/pokemon/{name}': jsonHandler.getPokemonByName,
+  '/pokemon/type/{type}': jsonHandler.getPokemonByType,
+  notFound: jsonHandler.notFound,
+};
+
+// parse the body of the request
 const parseBody = (request, response, handler) => {
-  // holds the body of the request
+  // holds the request body
   const body = [];
 
-  // set up error handling for our request
+  // set up error handling for the request
   request.on('error', (err) => {
     console.dir(err);
     response.statusCode = 400;
     response.end();
   });
 
-  // set up data handling for our end
+  // set up data handling
   request.on('data', (chunk) => {
     body.push(chunk);
   });
 
   // set up end event for our request
   request.on('end', () => {
-    // combine our buffer list and convert it to a string
     const bodyString = Buffer.concat(body).toString();
-    // parse the string into a map
     request.body = query.parse(bodyString);
 
-    // pass our data to our request handler
     handler(request, response);
   });
 };
 
+// handle POST requests
+const handlePost = (request, response, parsedUrl) => {
+  const queryParams = parsedUrl.searchParams;
+  request.query = Object.fromEntries(queryParams.entries());
+  if (urlStruct[parsedUrl.pathname]) {
+    parseBody(request, response, urlStruct[parsedUrl.pathname]);
+  }
+};
+
+// handle head requests
+const handleHead = (request, response, parsedUrl) => {
+  const queryParams = parsedUrl.searchParams;
+  request.query = Object.fromEntries(queryParams.entries());
+  if (urlStruct[parsedUrl.pathname]) {
+    urlStruct[parsedUrl.pathname](request, response);
+  } else {
+    urlStruct.notFound(request, response);
+  }
+};
+
+// handle get requests
+const handleGet = (request, response, parsedUrl) => {
+  const queryParams = parsedUrl.searchParams;
+  request.query = Object.fromEntries(queryParams.entries());
+  if (urlStruct[parsedUrl.pathname]) {
+    urlStruct[parsedUrl.pathname](request, response);
+  }
+};
+
+// handle requests
 const onRequest = (request, response) => {
   const protocol = request.connection.encrypted ? 'https' : 'http';
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
 
   if (request.method === 'POST') {
-    // handle POST requests
-  }
-  if (request.method === 'HEAD') {
-    // handle HEAD requests
-  }
-  if (request.method === 'GET') {
-    // handle GET requests
+    handlePost(request, response, parsedUrl);
+  } else if (request.method === 'HEAD') {
+    handleHead(request, response, parsedUrl);
+  } else if (request.method === 'GET') {
+    handleGet(request, response, parsedUrl);
+  } else {
+    urlStruct.notFound(request, response);
   }
 };
 
