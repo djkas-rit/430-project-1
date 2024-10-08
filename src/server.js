@@ -9,9 +9,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = {
   '/': htmlHandler.getIndex,
   '/pokemon': jsonHandler.getPokemon,
-  '/pokemon/{id}': jsonHandler.getPokemonById,
-  '/pokemon/{name}': jsonHandler.getPokemonByName,
-  '/pokemon/type/{type}': jsonHandler.getPokemonByType,
+  '/addPokemon': jsonHandler.addPokemon,
   notFound: jsonHandler.notFound,
 };
 
@@ -43,8 +41,8 @@ const parseBody = (request, response, handler) => {
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  const queryParams = parsedUrl.searchParams;
-  request.query = Object.fromEntries(queryParams.entries());
+    const queryParams = parsedUrl.searchParams;
+    request.query = Object.fromEntries(queryParams.entries());
   if (urlStruct[parsedUrl.pathname]) {
     parseBody(request, response, urlStruct[parsedUrl.pathname]);
   }
@@ -52,8 +50,8 @@ const handlePost = (request, response, parsedUrl) => {
 
 // handle head requests
 const handleHead = (request, response, parsedUrl) => {
-  const queryParams = parsedUrl.searchParams;
-  request.query = Object.fromEntries(queryParams.entries());
+    const queryParams = parsedUrl.searchParams;
+    request.query = Object.fromEntries(queryParams.entries());
   if (urlStruct[parsedUrl.pathname]) {
     urlStruct[parsedUrl.pathname](request, response);
   } else {
@@ -63,10 +61,12 @@ const handleHead = (request, response, parsedUrl) => {
 
 // handle get requests
 const handleGet = (request, response, parsedUrl) => {
-  const queryParams = parsedUrl.searchParams;
-  request.query = Object.fromEntries(queryParams.entries());
+    const queryParams = parsedUrl.searchParams;
+    request.query = Object.fromEntries(queryParams.entries());
   if (urlStruct[parsedUrl.pathname]) {
     urlStruct[parsedUrl.pathname](request, response);
+  } else {
+    urlStruct.notFound(request, response);
   }
 };
 

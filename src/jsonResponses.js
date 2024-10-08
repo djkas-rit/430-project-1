@@ -24,62 +24,27 @@ const respondJSON = (request, response, status, object) => {
 
 /* GET request functions */
 
-// function to get all pokemon
-const getAllPokemon = (request, response) => {
+// function to return pokemon object
+const getPokemon = (request, response) => {
   const responseJSON = { pokemon };
 
-  // limit the response if the user specifies a limit
+  // filter the response if a query parameter is present
+  // return an array containing a single pokemon matching the id
+  if (request.query.id && pokemon[request.query.id - 1]) {
+    responseJSON.pokemon = pokemon[request.query.id - 1];
+    // return an array containing a single pokemon matching the name
+  } else if (request.query.name && pokemon[request.query.name]) {
+    responseJSON.pokemon = pokemon[request.query.name]; // TODO: this is not working
+    // return an array of pokemon matching the specified type
+  } else if (request.query.type) {
+    responseJSON.pokemon = pokemon.filter((mon) => mon.type.includes(request.query.type));
+  }
+  // limit the response by the specified number
   if (request.query.limit) {
-    responseJSON.pokemon = responseJSON.pokemon.slice(0, request.query.count);
+    responseJSON.pokemon = responseJSON.pokemon.slice(0, request.query.limit);
   }
 
   respondJSON(request, response, 200, responseJSON);
-};
-
-// function to get a single pokemon by id
-const getPokemonById = (request, response) => {
-  const { id } = request.params;
-  const responseJSON = {};
-
-  if (pokemon[id]) {
-    responseJSON.pokemon = pokemon[id];
-    respondJSON(request, response, 200, responseJSON);
-  } else {
-    responseJSON.message = `Pokemon with ID ${id} not found.`;
-    respondJSON(request, response, 404, responseJSON);
-  }
-};
-
-// function to get a single pokemon by name
-const getPokemonByName = (request, response) => {
-  const { name } = request.params;
-  const responseJSON = {};
-
-  const pokemonByName = pokemon.find((mon) => mon.name.toLowerCase() === name.toLowerCase());
-
-  if (pokemonByName) {
-    responseJSON.pokemon = pokemonByName;
-    respondJSON(request, response, 200, responseJSON);
-  } else {
-    responseJSON.message = `Pokemon with name ${name} not found.`;
-    respondJSON(request, response, 404, responseJSON);
-  }
-};
-
-// function to get an array of pokemon by type
-const getPokemonByType = (request, response) => {
-  const { type } = request.params;
-  const responseJSON = {};
-
-  const filteredPokemon = pokemon.filter((mon) => mon.type.includes(type.toLowerCase()));
-
-  if (filteredPokemon.length > 0) {
-    responseJSON.pokemon = filteredPokemon;
-    respondJSON(request, response, 200, responseJSON);
-  } else {
-    responseJSON.message = `No Pokemon found with type ${type}.`;
-    respondJSON(request, response, 404, responseJSON);
-  }
 };
 
 // function to return not found message
@@ -129,10 +94,7 @@ const addPokemon = (request, response) => {
 };
 
 module.exports = {
-  getAllPokemon,
-  getPokemonById,
-  getPokemonByName,
-  getPokemonByType,
+  getPokemon,
   notFound,
   addPokemon,
 };
