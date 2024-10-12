@@ -43,6 +43,14 @@ const getPokemon = (request, response) => {
   if (request.query.limit) {
     responseJSON.pokemon = responseJSON.pokemon.slice(0, request.query.limit);
   }
+  // offset the response by the specified number
+  if (request.query.offset) {
+    responseJSON.pokemon = responseJSON.pokemon.slice(request.query.offset);
+  }
+  // order the response in descending order if specified
+  if (request.query.sort === 'desc') {
+    responseJSON.pokemon = responseJSON.pokemon.reverse();
+  }
 
   respondJSON(request, response, 200, responseJSON);
 };

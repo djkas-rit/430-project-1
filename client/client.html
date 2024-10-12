@@ -2,21 +2,23 @@
 <html lang="en">
 
 <head>
-  <title>Project 1</title>
+  <title>Pok&eacute;dex API</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   <script src="src/client.js"></script>
 </head>
 
 <body>
-  <h1>Project 1</h1>
+  <h1>Pok&eacute;dex API</h1>
   <div id="content">
     <p>The following API endpoints are available:</p>
     <ul>
-      <li><a href="/pokemon">/pokemon</a> - Get a list of all Pokemon</li>
-      <li><a href="/pokemon?name=Pikachu">/pokemon?name=Pikachu</a> - Get the Pokemon with the name "pikachu"</li>
-      <li><a href="/pokemon?id=25">/pokemon?id=25</a> - Get the Pokemon with the ID of 25</li>
-      <li><a href="/pokemon?limit=5">/pokemon?limit=5</a> - Get a list of the first 5 Pokemon</li>
-      <li><a href="/pokemon?type=Electric">/pokemon?type=Electric</a> - Get a list of Pokemon with the type "Electric"</li>
+      <li><a href="/pokemon">/pokemon</a> - Get a list of all available Pok&eacute;mon</li>
+      <li><a href="/pokemon?name=Pikachu">/pokemon?name=Pikachu</a> - Get the Pok&eacute;mon with the name "pikachu"</li>
+      <li><a href="/pokemon?id=25">/pokemon?id=25</a> - Get the Pok&eacute;mon with the ID of 25</li>
+      <li><a href="/pokemon?limit=5">/pokemon?limit=5</a> - Get a list of the first 5 Pok&eacute;mon</li>
+      <li><a href="/pokemon?limit=5&offset=5">/pokemon?limit=5&offset=5</a> - Get a list of 5 Pok&eacute;mon starting from the 6th Pok&eacute;mon</li>
+      <li><a href="/pokemon?type=Electric">/pokemon?type=Electric</a> - Get a list of Pok&eacute;mon with the type "Electric"</li>
+      <li><a href="/pokemon?sort=desc">/pokemon?sort=desc</a> - Get a list of Pok&eacute;mon sorted in descending order</li>
     </ul>
   </div>
 </body>
