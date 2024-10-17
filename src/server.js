@@ -9,6 +9,8 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = {
   '/': htmlHandler.getIndex,
   '/pokemon': jsonHandler.getPokemon,
+  '/getPokemonById': jsonHandler.getPokemonById,
+  '/getPokemonByName': jsonHandler.getPokemonByName,
   '/addPokemon': jsonHandler.addPokemon,
   notFound: jsonHandler.notFound,
 };

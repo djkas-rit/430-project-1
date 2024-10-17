@@ -55,6 +55,28 @@ const getPokemon = (request, response) => {
   respondJSON(request, response, 200, responseJSON);
 };
 
+// function to return a single pokemon by id
+const getPokemonById = (request, response, id) => {
+  const responseJSON = { pokemon };
+
+  if (request.query.id && pokemon.find((mon) => mon.id === id)) {
+    responseJSON.pokemon = pokemon.find((mon) => mon.id === id);
+  }
+
+  respondJSON(request, response, 200, responseJSON);
+}
+
+// function to return a single pokemon by name
+const getPokemonByName = (request, response, name) => {
+  const responseJSON = { pokemon };
+
+  if (request.query.name.toLowerCase() && pokemon.find((mon) => mon.name === name).toLowerCase()) {
+    responseJSON.pokemon = pokemon.find((mon) => mon.name === name);
+  }
+
+  respondJSON(request, response, 200, responseJSON);
+}
+
 // function to return not found message
 const notFound = (request, response) => {
   const responseJSON = {
@@ -69,8 +91,10 @@ const notFound = (request, response) => {
 
 // function to add a new item from a post
 const addPokemon = (request, response) => {
+  // set up a default response object
   const responseJSON = {
-    message: 'Name, type, and level are all required.',
+    message: 'Name, type, and level are required.',
+    id: 'missingParams',
   };
 
   // check for missing parameters
@@ -101,8 +125,36 @@ const addPokemon = (request, response) => {
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
+// function to delete a pokemon by id
+const deletePokemonById = (request, response) => {
+  // set up a default response object
+  const responseJSON = {
+    message: 'Id is required.',
+    id: 'missingParams',
+  };
+  
+  // check for missing parameter
+  if (!request.body.id) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  // check if the pokemon exists
+  if (pokemon[request.body.id]) {
+    // delete the pokemon
+    delete pokemon[request.body.id];
+    return respondJSON(request, response, 204, responseJSON);
+  }
+
+  // return a 404 if the pokemon was not found
+  return respondJSON(request, response, 404, responseJSON);
+}
+
 module.exports = {
   getPokemon,
+  getPokemonById,
+  getPokemonByName,
   notFound,
   addPokemon,
+  deletePokemonById,
 };
