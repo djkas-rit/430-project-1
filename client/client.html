@@ -4,25 +4,224 @@
 <head>
   <title>Pok&eacute;dex API</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  <script src="src/client.js"></script>
+  <!--<script src="src/client.js"></script>-->
 </head>
 
-<body>
+<div class="container">
   <h1>Pok&eacute;dex API</h1>
-  <div id="content">
-    <p>The following API endpoints are available:</p>
-    <ul>
-      <li><a href="/pokemon">/pokemon</a> - Get a list of all available Pok&eacute;mon</li>
-      <li><a href="/pokemon?name=Pikachu">/pokemon?name=Pikachu</a> - Get the Pok&eacute;mon with the name "pikachu"</li>
-      <li><a href="/pokemon?id=25">/pokemon?id=25</a> - Get the Pok&eacute;mon with the ID of 25</li>
-      <li><a href="/pokemon?limit=5">/pokemon?limit=5</a> - Get a list of the first 5 Pok&eacute;mon</li>
-      <li><a href="/pokemon?limit=5&offset=5">/pokemon?limit=5&offset=5</a> - Get a list of 5 Pok&eacute;mon starting from the 6th Pok&eacute;mon</li>
-      <li><a href="/pokemon?type=Electric">/pokemon?type=Electric</a> - Get a list of Pok&eacute;mon with the type "Electric"</li>
-      <li><a href="/pokemon?sort=desc">/pokemon?sort=desc</a> - Get a list of Pok&eacute;mon sorted in descending order</li>
-      <li><a href="/getPokemonById?id=25">/getPokemonById?id=25</a> - Get the Pok&eacute;mon with the ID of 25</li>
-      <li><a href="/getPokemonByName?name=Pikachu">/getPokemonByName?name=Pikachu</a> - Get the Pok&eacute;mon with the name "Pikachu"</li>
-    </ul>
+
+  <div class="container">
+    <h2>GET/HEAD Request</h2>
+    <div>
+      <label>
+        <input type="radio" name="requestType" value="GET" checked> GET
+      </label>
+      <label>
+        <input type="radio" name="requestType" value="HEAD"> HEAD
+      </label>
+    </div>
+
+    <div>
+      <label for="endpoint">Select Endpoint:</label>
+      <select id="endpoint">
+        <option value="/pokemon">/pokemon</option>
+        <option value="/getPokemonById">/getPokemonById</option>
+        <option value="/getPokemonByName">/getPokemonByName</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="queryParams">Query Parameters (Optional):</label>
+      <input type="text" id="queryParams" placeholder="e.g., id=1 or name=Pikachu">
+    </div>
+    <button id="submitBtn">Submit</button>
   </div>
+</div>
+
+<div class="container">
+  <h2>POST Request - Add/Modify</h2>
+  <div>
+    <label for="postId">ID:</label>
+    <input type="text" id="postId" placeholder="e.g., 1">
+  </div>
+  <div>
+    <label for="postName">Name:</label>
+    <input type="text" id="postName" placeholder="e.g., Pikachu">
+  </div>
+  <div>
+    <select id="postType1" name="Type 1">
+      <option value="Normal">Normal</option>
+      <option value="Fire">Fire</option>
+      <option value="Water">Water</option>
+      <option value="Grass">Grass</option>
+      <option value="Electric">Electric</option>
+    </select>
+    <select id="postType1" name="Type 1">
+      <option value="Normal">Normal</option>
+      <option value="Fire">Fire</option>
+      <option value="Water">Water</option>
+      <option value="Grass">Grass</option>
+      <option value="Electric">Electric</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="postHeight">Height:</label>
+    <input type="text" id="postHeight" placeholder="e.g., 0.6">
+  </div>
+  <div>
+    <label for="postWeight">Weight:</label>
+    <input type="text" id="postWeight" placeholder="e.g., 6.9">
+  </div>
+  <button id="postBtn">Submit</button>
+
+  <div class="container">
+    <h2>POST Request - Delete</h2>
+    <label for="deleteId">ID to delete:</label>
+    <input type="text" id="deleteId" placeholder="e.g., 1">
+    <button id="deleteBtn">Delete</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Response</h2>
+  <span id="responseStatus"></span>
+  <pre id="jsonResponse"></pre>
+</div>
+
+<script>
+  document.getElementById('submitBtn').addEventListener('click', async () => {
+    // get request type (GET/HEAD)
+    const requestType = document.querySelector('input[name="requestType"]:checked').value;
+
+    // get endpoint
+    const endpoint = document.getElementById('endpoint').value;
+
+    // get query parameters
+    const queryParams = document.getElementById('queryParams').value;
+
+    // create the full URL
+    let url = 'http://localhost:3000' + endpoint;
+    if (queryParams) {
+      url += '?' + queryParams;
+    }
+
+    try {
+      // send request based on the selected method
+      const response = await fetch(url, {
+        method: requestType,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      // parse response if there is a body (GET)
+      let jsonResponse = '';
+      if (requestType === 'GET') {
+        const data = await response.json();
+        jsonResponse = JSON.stringify(data, null, 2);
+      } else {
+        jsonResponse = 'No body content to display.'
+      }
+
+      // display the response status and body
+      document.getElementById('responseStatus').textContent = `Status: ${response.status}`;
+      document.getElementById('jsonResponse').textContent = jsonResponse;
+    } catch (error) {
+      document.getElementById('responseStatus').textContent = response ? `Status: ${response.status}` : 'Error';
+      document.getElementById('jsonResponse').textContent = 'Error: ' + error.message;
+    }
+  });
+
+  document.getElementById('postBtn').addEventListener('click', async () => {
+    // request type and endpoint
+    const requestType = 'POST';
+    const endpoint = '/addPokemon';
+
+    // get the input values 
+    const id = document.getElementById('postId').value;
+    const name = document.getElementById('postName').value;
+    const type1 = document.getElementById('postType1').value;
+    const type2 = document.getElementById('postType2').value;
+    const height = document.getElementById('postHeight').value;
+    const weight = document.getElementById('postWeight').value;
+
+    // create the request body
+    const body = JSON.stringify({
+      id: id,
+      name: name,
+      type1: type1,
+      type2: type2,
+      height: height,
+      weight: weight
+    });
+
+    try {
+      // send the request
+      const response = await fetch('http://localhost:3000' + endpoint, {
+        method: requestType,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': body.length,
+          'Accept': 'application/json'
+        },
+        body: body
+      });
+
+      // parse the response
+      const data = await response.json();
+      const jsonResponse = JSON.stringify(data, null, 2);
+
+      // display the response status and body
+      document.getElementById('postResponseStatus').textContent = `Status: ${response.status}`;
+      document.getElementById('postJsonResponse').textContent = jsonResponse;
+    } catch (error) {
+      document.getElementById('postResponseStatus').textContent = response ? `Status: ${response.status}` : 'Error';
+      document.getElementById('postJsonResponse').textContent = 'Error: ' + error.message;
+    }
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', async () => {
+    // request type and endpoint
+    const requestType = 'POST';
+    const endpoint = '/deletePokemonById';
+
+    // get the id to delete
+    const id = document.getElementById('deleteId').value;
+
+    // create the request body
+    const body = JSON.stringify({
+      id: id
+    });
+
+    try {
+      // send the request
+      const response = await fetch('http://localhost:3000' + endpoint, {
+        method: requestType,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': body.length,
+          'Accept': 'application/json'
+        },
+        body: body
+      });
+
+      // parse the response
+      const data = await response.json();
+      const jsonResponse = JSON.stringify(data, null, 2);
+
+      // display the response status and body
+      document.getElementById('postResponseStatus').textContent = `Status: ${response.status}`;
+      document.getElementById('postJsonResponse').textContent = jsonResponse;
+    } catch (error) {
+      document.getElementById('postResponseStatus').textContent = response ? `Status: ${response.status}` : 'Error';
+      document.getElementById('postJsonResponse').textContent = 'Error: ' + error.message;
+    }
+  });
+
+</script>
+
 </body>
 
 </html>
