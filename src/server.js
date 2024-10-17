@@ -8,10 +8,12 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 // dictionary of endpoints and their handlers
 const urlStruct = {
   '/': htmlHandler.getIndex,
+  '/style.css': htmlHandler.getStyle,
   '/pokemon': jsonHandler.getPokemon,
   '/getPokemonById': jsonHandler.getPokemonById,
   '/getPokemonByName': jsonHandler.getPokemonByName,
   '/addPokemon': jsonHandler.addPokemon,
+  '/deletePokemon': jsonHandler.deletePokemon,
   notFound: jsonHandler.notFound,
 };
 

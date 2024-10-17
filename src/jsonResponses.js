@@ -28,14 +28,14 @@ const respondJSON = (request, response, status, object) => {
 const getPokemon = (request, response) => {
   const responseJSON = { pokemon };
 
-  // filter the response if a query parameter is present
+  /// filter the response if a query parameter is present ///
   // return an array containing a single pokemon matching the id
   if (request.query.id && pokemon[request.query.id - 1]) {
     responseJSON.pokemon = pokemon[request.query.id - 1];
-    // return an array containing a single pokemon matching the name
-  } else if (request.query.name && pokemon[request.query.name]) {
-    responseJSON.pokemon = pokemon[request.query.name]; // TODO: this is not working
-    // return an array of pokemon matching the specified type
+  // return an array containing a single pokemon matching the name
+  } else if (request.query.name && pokemon.find((mon) => mon.name === request.query.name)) { 
+    responseJSON.pokemon = pokemon.find((mon) => mon.name === request.query.name);
+  // return an array of pokemon matching the specified type
   } else if (request.query.type) {
     responseJSON.pokemon = pokemon.filter((mon) => mon.type.includes(request.query.type));
   }
@@ -56,26 +56,55 @@ const getPokemon = (request, response) => {
 };
 
 // function to return a single pokemon by id
-const getPokemonById = (request, response, id) => {
-  const responseJSON = { pokemon };
+const getPokemonById = (request, response) => {
+  // set up a default response object
+  const responseJSON = {
+    message: 'Id is required.',
+    id: 'missingParams',
+  };
 
-  if (request.query.id && pokemon.find((mon) => mon.id === id)) {
-    responseJSON.pokemon = pokemon.find((mon) => mon.id === id);
+  // check for missing parameter
+  if (!request.query.id) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
   }
 
-  respondJSON(request, response, 200, responseJSON);
-}
+  // check that the pokemon exists
+  if (pokemon[request.query.id - 1]) {
+    return respondJSON(request, response, 200, pokemon[request.query.id - 1]);
+  }
+
+  // return a 404 if the pokemon was not found
+  responseJSON.message = 'A Pok&eacute;mon with that ID was not found.';
+  responseJSON.id = 'notFound';
+  return respondJSON(request, response, 404, responseJSON);
+};
 
 // function to return a single pokemon by name
-const getPokemonByName = (request, response, name) => {
-  const responseJSON = { pokemon };
+const getPokemonByName = (request, response) => {
+  // set up a default response object
+  const responseJSON = {
+    message: 'Name is required.',
+    id: 'missingParams',
+  };
 
-  if (request.query.name.toLowerCase() && pokemon.find((mon) => mon.name === name).toLowerCase()) {
-    responseJSON.pokemon = pokemon.find((mon) => mon.name === name);
+  // check for missing parameter
+  if (!request.query.name) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
   }
 
-  respondJSON(request, response, 200, responseJSON);
-}
+  // check that the pokemon exists
+  let foundPokemon = pokemon.find(p => p.name === request.query.name);
+  if (foundPokemon) {
+    return respondJSON(request, response, 200, foundPokemon);
+  }
+
+  // return a 404 if the pokemon was not found
+  responseJSON.message = 'A Pok&eacute;mon with that name was not found.';
+  responseJSON.id = 'notFound';
+  return respondJSON(request, response, 404, responseJSON);
+};
 
 // function to return not found message
 const notFound = (request, response) => {
@@ -93,12 +122,18 @@ const notFound = (request, response) => {
 const addPokemon = (request, response) => {
   // set up a default response object
   const responseJSON = {
-    message: 'Name, type, and level are required.',
+    message: 'All fields are required.',
     id: 'missingParams',
   };
 
   // check for missing parameters
-  if (!request.body.name || !request.body.type || !request.body.level) {
+  if (!request.body.id ||
+    !request.body.num ||
+    !request.body.name ||
+    !request.body.type ||
+    !request.body.height ||
+    !request.body.weight ||
+    !request.body.weaknesses) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
@@ -107,32 +142,35 @@ const addPokemon = (request, response) => {
   let responseCode = 201;
 
   // check if the pokemon already exists
-  if (pokemon[request.body.name]) {
+  let newPokemon = {};
+  if (pokemon.find(p => p.name === request.body.name)) {
     responseCode = 204;
+    newPokemon = pokemon.find(p => p.name === request.body.name);
   } else {
     // add the pokemon to the object
-    pokemon[request.body.name] = {};
+    newPokemon = {};
   }
 
   // add the values to the object
-  pokemon[request.body.name].name = request.body.name;
-  pokemon[request.body.name].type = request.body.type;
-  pokemon[request.body.height] = request.body.height;
-  pokemon[request.body.weight] = request.body.weight;
-  pokemon[request.body.weaknesses] = request.body.weaknesses;
-
+  newPokemon.id = request.body.id;
+  newPokemon.name = request.body.name;
+  newPokemon.type = request.body.type;
+  newPokemon.height = request.body.height;
+  newPokemon.weight = request.body.weight;
+  newPokemon.weaknesses = request.body.weaknesses;
+  
   // return the appropriate response code
   return respondJSON(request, response, responseCode, responseJSON);
 };
 
 // function to delete a pokemon by id
-const deletePokemonById = (request, response) => {
+const deletePokemon = (request, response) => {
   // set up a default response object
   const responseJSON = {
     message: 'Id is required.',
     id: 'missingParams',
   };
-  
+
   // check for missing parameter
   if (!request.body.id) {
     responseJSON.id = 'missingParams';
@@ -140,13 +178,16 @@ const deletePokemonById = (request, response) => {
   }
 
   // check if the pokemon exists
-  if (pokemon[request.body.id]) {
-    // delete the pokemon
-    delete pokemon[request.body.id];
-    return respondJSON(request, response, 204, responseJSON);
+  if (pokemon[request.body.id - 1]) {
+    // remove the pokemon from the object
+    pokemon.splice(request.body.id - 1, 1);
+    responseJSON.message = 'The Pok&eacute;mon was deleted successfully.';
+    return respondJSON(request, response, 200, responseJSON);
   }
 
   // return a 404 if the pokemon was not found
+  responseJSON.message = 'A Pok&eacute;mon with that ID was not found.';
+  responseJSON.id = 'notFound';
   return respondJSON(request, response, 404, responseJSON);
 }
 
@@ -156,5 +197,5 @@ module.exports = {
   getPokemonByName,
   notFound,
   addPokemon,
-  deletePokemonById,
+  deletePokemon,
 };

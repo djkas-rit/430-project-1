@@ -9,6 +9,15 @@ const getIndex = (request, response) => {
   response.end();
 };
 
+// function to respond with stylesheet
+const getStyle = (request, response) => {
+  const style = fs.readFileSync(`${__dirname}/../client/css/style.css`);
+  response.writeHead(200, { 'Content-Type': 'text/css' });
+  response.write(style);
+  response.end();
+};
+
 module.exports = {
   getIndex,
+  getStyle,
 };
