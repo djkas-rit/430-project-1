@@ -121,10 +121,6 @@ GET /pokemonByName?name=Pikachu
 }
 ```
 
-#### Error Responses:
-- **400 Bad Request**: If `name` is not provided.
-- **404 Not Found**: If no Pokémon with the given `name` exists.
-
 ### 4. `POST /addPokemon`
 
 Add a new Pokémon to the dataset. All fields are required in the request body.
